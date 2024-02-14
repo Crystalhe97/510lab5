@@ -29,4 +29,4 @@ jobs:
         DB_PORT: ${{ secrets.DB_PORT }}
         DB_NAME: ${{ secrets.DB_NAME }}
       run: |
-        python scraper.py
+        python scrape.py
