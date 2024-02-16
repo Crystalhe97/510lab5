@@ -107,8 +107,26 @@ def get_detail_page():
     json.dump(data, open(URL_DETAIL_FILE, 'w'))
 
 def insert_to_pg():
+    q = '''
+    CREATE TABLE IF NOT EXISTS events (
+        url TEXT PRIMARY KEY,
+        title TEXT,
+        date TIMESTAMP WITH TIME ZONE,
+        venue TEXT,
+        category TEXT,
+        location TEXT,
+        latitude FLOAT,
+        longitude FLOAT,
+        weather_condition TEXT,
+        temperature_max FLOAT,
+        temperature_min FLOAT,
+        wind_chill FLOAT
+    );
+    '''
+
     conn = get_db_conn()
     cur = conn.cursor()
+    cur.execute(q)
     
     urls = json.load(open(URL_LIST_FILE, 'r'))
     data = json.load(open(URL_DETAIL_FILE, 'r'))
