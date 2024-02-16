@@ -56,14 +56,13 @@ def fetch_weather(latitude, longitude):
         if forecast_response.status_code == 200:
             forecast_data = forecast_response.json()
             period = forecast_data['properties']['periods'][0]
-            weather = {
-                'condition': period['shortForecast'],
-                'temperature_min': None,  
+            return {
+                'weather_condition': period['shortForecast'],
                 'temperature_max': period['temperature'],
-                'wind_chill': None
+                'temperature_min': None,  # Adjust logic if needed
+                'wind_chill': None  # Adjust logic if needed
             }
-            return weather
-    return None    
+    return None   
  
 
 def get_detail_page():
