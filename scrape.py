@@ -98,7 +98,7 @@ def get_detail_page():
                 if weather:
                     row.update(weather)
                 else:
-                    row['weather'] = 'Not available'
+                    row['weather_condition'] = 'Not available'
 
             data.append(row)
         except IndexError as e:
@@ -107,33 +107,37 @@ def get_detail_page():
     json.dump(data, open(URL_DETAIL_FILE, 'w'))
 
 def insert_to_pg():
+    data = json.load(open(URL_DETAIL_FILE, 'r'))
     conn = get_db_conn()
     cur = conn.cursor()
-    
-    urls = json.load(open(URL_LIST_FILE, 'r'))
-    data = json.load(open(URL_DETAIL_FILE, 'r'))
-    for url, row in zip(urls, data):
-        q_insert = '''
-        INSERT INTO events (url, title, date, venue, category, location, weather_condition, temperature_max, temperature_min, wind_chill)
-        VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
-        ON CONFLICT (url) DO NOTHING;
+    cur.execute('''
+        CREATE TABLE IF NOT EXISTS events (
+            id SERIAL PRIMARY KEY,
+            title TEXT,
+            date TIMESTAMP WITH TIME ZONE,
+            venue TEXT,
+            category TEXT,
+            location TEXT,
+            longitude TEXT,
+            latitude TEXT,
+            weather_condition TEXT,
+            temperature_max INT,
+            temperature_min INT,
+            wind_chill INT
+            
+        );
+    ''')
+
+    for row in data:
+        q = '''
+            INSERT INTO events (title, date, venue, category, location, longitude, latitude, weather_condition, temperature_max, temperature_min, wind_chill)
+            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
         '''
-        cur.execute(q_insert, (
-            url, 
-            row['title'], 
-            row['date'], 
-            row['venue'], 
-            row['category'], 
-            row['location'],
-            row.get('condition'),  
-            row.get('temperature_max'),
-            row.get('temperature_min'),
-            row.get('wind_chill')
-        ))
+        cur.execute(q, (row['title'], row['date'], row['venue'], row['category'], row['location'], row.get('longitude'), row.get('latitude'), row.get('weather_condition'), row.get('temperature_max'), row.get('temperature_min'), row.get('wind_chill')))
     conn.commit()
     cur.close()
     conn.close()
-    
+
 
 if __name__ == '__main__':
     list_links()
