@@ -41,8 +41,24 @@ if date_range:
 if conditions:
     sql_query += " WHERE " + " AND ".join(conditions)
 
+# Fetch events with location data
+sql_query_with_location = sql_query.replace("*", "title, location, latitude, longitude")
+
 df = sqlio.read_sql_query(sql_query, conn)
 st.write("Filtered Events:", df)
+
+# Initialize the map
+m = folium.Map(location=[47.6062, -122.3321], zoom_start=12)
+
+# Add markers for each event
+for index, row in df.iterrows():
+    folium.Marker(
+        [row['latitude'], row['longitude']],
+        popup=f"{row['title']} - {row['location']}",
+    ).add_to(m)
+
+# Display the map
+st_folium(m, width=725, height=500)
 
 # Original visualization (assuming this is for event categories)
 df = sqlio.read_sql_query("SELECT * FROM events", conn)
@@ -54,13 +70,6 @@ st.altair_chart(
     use_container_width=True,
 )
 
-# SelectBox for categories (assuming this part is for filtering by category)
-category = st.selectbox("Select a category", df['category'].unique())
-
-# Original map visualization (assuming this is part of the original functionality)
-# Note: Adjust the folium.Map initialization as necessary for your app
-m = folium.Map(location=[47.6062, -122.3321], zoom_start=10)
-st_folium(m, width=725, height=500)
 
 # Second chart: Number of events per month
 query_month = """
