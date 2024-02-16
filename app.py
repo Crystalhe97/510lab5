@@ -36,7 +36,7 @@ if location_choice != 'All':
 
 if date_range:
     start_date, end_date = date_range[0], date_range[-1]
-    conditions.append(f"event_date BETWEEN '{start_date}' AND '{end_date}'")
+    conditions.append(f"date BETWEEN '{start_date}' AND '{end_date}'")
 
 if conditions:
     sql_query += " WHERE " + " AND ".join(conditions)
